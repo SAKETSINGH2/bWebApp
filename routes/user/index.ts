@@ -144,4 +144,21 @@ router.get("/", async (request, response, next) => {
         .json({ message: "user found successfully", data: responseDetails });
 });
 
+// router.get("/", async (request, response, next) => {
+//     let responseDetails: any;
+
+//     try {
+//         responseDetails = await userRespository.getAllUser();
+//     } catch (error) {
+//         return next(error);
+//     }
+//     if (!responseDetails) {
+//         return response.status(400).json({ message: "users not found" });
+//     }
+
+//     return response
+//         .status(200)
+//         .json({ message: "user found successfully", data: responseDetails });
+// });
+
 export default router;
