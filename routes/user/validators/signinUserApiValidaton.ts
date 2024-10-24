@@ -9,5 +9,5 @@ export const signinUserApiValidator = [
 
 export const loginApiValidator = [
     body("mobileNo").isInt().withMessage("mobileNo is required"),
-    body("email").isString().withMessage("email is required"),
+    body("password").isString().withMessage("password is required"),
 ];
