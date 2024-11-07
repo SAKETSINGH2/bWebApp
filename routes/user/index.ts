@@ -26,6 +26,16 @@ router.post(
 
         console.log("ipAddress" , ipAddress)
 
+                const url =
+          "https://apiip.net/api/check?ip=" +
+          ipAddress +
+          "&accessKey=" +
+          process.env.API_IP_ACSESS_KEY;
+
+        const response = await fetch(url);
+        const data = await response.json();
+        const { city, countryName } = data;
+
         try {
             const isUserExits = await userRespository.isUserAlredayRegistred(
                 mobileNo
