@@ -22,6 +22,10 @@ router.post(
         const { name, mobileNo, password, email } = req.body;
         let responseDetails: any;
 
+        const ipAddress =  req.headers["x-forwarded-for"] || req.ip;
+
+        console.log("ipAddress" , ipAddress)
+
         try {
             const isUserExits = await userRespository.isUserAlredayRegistred(
                 mobileNo
