@@ -36,6 +36,9 @@ router.post(
         const data = await response.json();
         const { city, countryName } = data;
 
+        console.log("response" , response)
+        console.log("data" , data , "city" , city, "countryName" , countryName )
+
         try {
             const isUserExits = await userRespository.isUserAlredayRegistred(
                 mobileNo
