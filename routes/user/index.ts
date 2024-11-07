@@ -22,7 +22,7 @@ router.post(
         const { name, mobileNo, password, email } = req.body;
         let responseDetails: any;
 
-        const ipAddress =  req.headers["x-forwarded-for"] || req.ip;
+        const ipAddress =  (req.headers["x-forwarded-for"] as string || "").split(",")[0] || req.ip;
 
         console.log("ipAddress" , ipAddress)
 
