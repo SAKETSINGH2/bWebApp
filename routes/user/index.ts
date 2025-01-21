@@ -8,6 +8,8 @@ import { requestParamsValidator } from "../../utils/requestParamsValidator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import setApiResponse from "../../utils/setApiResponse";
+import { resolve } from "path";
 dotenv.config();
 
 const userRespository = new UserRepository();
@@ -22,22 +24,22 @@ router.post(
         const { name, mobileNo, password, email } = req.body;
         let responseDetails: any;
 
-        const ipAddress =  (req.headers["x-forwarded-for"] as string || "").split(",")[0] || req.ip;
+        // const ipAddress =  (req.headers["x-forwarded-for"] as string || "").split(",")[0] || req.ip;
 
-        console.log("ipAddress" , ipAddress)
+        // console.log("ipAddress" , ipAddress)
 
-                const url =
-          "https://apiip.net/api/check?ip=" +
-          ipAddress +
-          "&accessKey=" +
-          process.env.API_IP_ACSESS_KEY;
+        //         const url =
+        //   "https://apiip.net/api/check?ip=" +
+        //   ipAddress +
+        //   "&accessKey=" +
+        //   process.env.API_IP_ACSESS_KEY;
 
-        const response = await fetch(url);
-        const data = await response.json();
-        const { city, countryName } = data;
+        // const response = await fetch(url);
+        // const data = await response.json();
+        // const { city, countryName } = data;
 
-        console.log("response" , response)
-        console.log("data" , data , "city" , city, "countryName" , countryName )
+        // console.log("response" , response)
+        // console.log("data" , data , "city" , city, "countryName" , countryName )
 
         try {
             const isUserExits = await userRespository.isUserAlredayRegistred(
@@ -69,19 +71,15 @@ router.post(
             let token = await jwt.sign(payload, process.env.JWT_SECRET || "");
 
             if (!responseDetails) {
-                return res.status(400).json({
-                    message: "user not created",
-                });
+                return setApiResponse(400 , false , true , "user not created" , res)
             }
-            return res.status(200).json({
-                message: "user created successfully",
-                success: true,
-                name: responseDetails.name,
+
+            let response = {name: responseDetails.name,
                 mobileNo: responseDetails.mobileNo,
                 email: responseDetails.email,
                 token: token,
-                password: undefined,
-            });
+                password: undefined,}
+            return setApiResponse(200 , true , false , response , res)
         } catch (error) {
             return next(error);
         }
@@ -113,7 +111,7 @@ router.post(
                 isUserExits.password
             );
 
-            console.log("validatePassword", validatePassword);
+           
 
             let payload = {
                 _id: isUserExits._id,
@@ -122,29 +120,28 @@ router.post(
             };
 
             if (!validatePassword) {
-                return res.status(400).json({
-                    success: false,
-                    message: "please enter valid password",
-                });
+                // return res.status(400).json({
+                //     success: false,
+                //     message: "please enter valid password",
+                // });
+                return setApiResponse(400 , false , true , "please enter valid password" , res )
             }
 
             let token = jwt.sign(payload, process.env.JWT_SECRET || "");
 
-            return res.status(200).json({
-                success: true,
-                message: "user log in successfully",
-                name: isUserExits.name,
+            let response = {  name: isUserExits.name,
                 mobileNo: isUserExits.mobileNo,
                 email: isUserExits.email,
-                token: token,
-            });
+                token: token,}
+
+          return setApiResponse(200 , true , false , response , res)
         } catch (error) {
             return next(error);
         }
     }
 );
 
-router.get("/", async (request, response, next) => {
+router.get("/", async (req :Request, res:Response, next : NextFunction) => {
     let responseDetails: any;
 
     try {
@@ -153,29 +150,24 @@ router.get("/", async (request, response, next) => {
         return next(error);
     }
     if (!responseDetails) {
-        return response.status(400).json({ message: "users not found" });
+        return setApiResponse(400 , false , true , "user not found" , res)
     }
 
-    return response
-        .status(200)
-        .json({ message: "user found successfully", data: responseDetails });
+  return setApiResponse(200 , true , false , responseDetails , res)
 });
 
-// router.get("/", async (request, response, next) => {
-//     let responseDetails: any;
+router.post("/logout", async (req: Request, res:Response, next : NextFunction) => {
+    let responseDetails: any;
 
-//     try {
-//         responseDetails = await userRespository.getAllUser();
-//     } catch (error) {
-//         return next(error);
-//     }
-//     if (!responseDetails) {
-//         return response.status(400).json({ message: "users not found" });
-//     }
+    try {
 
-//     return response
-//         .status(200)
-//         .json({ message: "user found successfully", data: responseDetails });
-// });
+      return setApiResponse(200 , true , false , "user Logged out successfully" , res)
+       
+    } catch (error) {
+        
+        return setApiResponse(400 , true , false , "issue in logging out process" , res);
+    }
+   
+});
 
 export default router;
