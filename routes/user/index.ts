@@ -8,7 +8,7 @@ import { requestParamsValidator } from "../../utils/requestParamsValidator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import setApiResponse from "../../utils/setApiResponse";
+import setApiResponse from "../../utils/setApiresponseType";
 import { resolve } from "path";
 dotenv.config();
 
@@ -71,15 +71,23 @@ router.post(
             let token = await jwt.sign(payload, process.env.JWT_SECRET || "");
 
             if (!responseDetails) {
-                return setApiResponse(400 , false , true , "user not created" , res)
+                return setApiResponse(
+                    400,
+                    false,
+                    true,
+                    "user not created",
+                    res
+                );
             }
 
-            let response = {name: responseDetails.name,
+            let response = {
+                name: responseDetails.name,
                 mobileNo: responseDetails.mobileNo,
                 email: responseDetails.email,
                 token: token,
-                password: undefined,}
-            return setApiResponse(200 , true , false , response , res)
+                password: undefined,
+            };
+            return setApiResponse(200, true, false, response, res);
         } catch (error) {
             return next(error);
         }
@@ -111,8 +119,6 @@ router.post(
                 isUserExits.password
             );
 
-           
-
             let payload = {
                 _id: isUserExits._id,
                 name: isUserExits.name,
@@ -124,24 +130,32 @@ router.post(
                 //     success: false,
                 //     message: "please enter valid password",
                 // });
-                return setApiResponse(400 , false , true , "please enter valid password" , res )
+                return setApiResponse(
+                    400,
+                    false,
+                    true,
+                    "please enter valid password",
+                    res
+                );
             }
 
             let token = jwt.sign(payload, process.env.JWT_SECRET || "");
 
-            let response = {  name: isUserExits.name,
+            let response = {
+                name: isUserExits.name,
                 mobileNo: isUserExits.mobileNo,
                 email: isUserExits.email,
-                token: token,}
+                token: token,
+            };
 
-          return setApiResponse(200 , true , false , response , res)
+            return setApiResponse(200, true, false, response, res);
         } catch (error) {
             return next(error);
         }
     }
 );
 
-router.get("/", async (req :Request, res:Response, next : NextFunction) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     let responseDetails: any;
 
     try {
@@ -150,24 +164,35 @@ router.get("/", async (req :Request, res:Response, next : NextFunction) => {
         return next(error);
     }
     if (!responseDetails) {
-        return setApiResponse(400 , false , true , "user not found" , res)
+        return setApiResponse(400, false, true, "user not found", res);
     }
 
-  return setApiResponse(200 , true , false , responseDetails , res)
+    return setApiResponse(200, true, false, responseDetails, res);
 });
 
-router.post("/logout", async (req: Request, res:Response, next : NextFunction) => {
-    let responseDetails: any;
+router.post(
+    "/logout",
+    async (req: Request, res: Response, next: NextFunction) => {
+        let responseDetails: any;
 
-    try {
-
-      return setApiResponse(200 , true , false , "user Logged out successfully" , res)
-       
-    } catch (error) {
-        
-        return setApiResponse(400 , true , false , "issue in logging out process" , res);
+        try {
+            return setApiResponse(
+                200,
+                true,
+                false,
+                "user Logged out successfully",
+                res
+            );
+        } catch (error) {
+            return setApiResponse(
+                400,
+                true,
+                false,
+                "issue in logging out process",
+                res
+            );
+        }
     }
-   
-});
+);
 
 export default router;
