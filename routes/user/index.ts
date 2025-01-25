@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import setApiResponse from "../../utils/setApiresponseType";
-import { resolve } from "path";
+import { userAuth } from "../../middlewares/userAuth";
 dotenv.config();
 
 const userRespository = new UserRepository();
@@ -23,23 +23,6 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         const { name, mobileNo, password, email } = req.body;
         let responseDetails: any;
-
-        // const ipAddress =  (req.headers["x-forwarded-for"] as string || "").split(",")[0] || req.ip;
-
-        // console.log("ipAddress" , ipAddress)
-
-        //         const url =
-        //   "https://apiip.net/api/check?ip=" +
-        //   ipAddress +
-        //   "&accessKey=" +
-        //   process.env.API_IP_ACSESS_KEY;
-
-        // const response = await fetch(url);
-        // const data = await response.json();
-        // const { city, countryName } = data;
-
-        // console.log("response" , response)
-        // console.log("data" , data , "city" , city, "countryName" , countryName )
 
         try {
             const isUserExits = await userRespository.isUserAlredayRegistred(
@@ -61,15 +44,6 @@ router.post(
                 email,
             });
 
-            const payload = {
-                _id: responseDetails._id,
-                name: responseDetails.name,
-                mobileNo: responseDetails.mobileNo,
-            };
-
-            // create token
-            let token = await jwt.sign(payload, process.env.JWT_SECRET || "");
-
             if (!responseDetails) {
                 return setApiResponse(
                     400,
@@ -84,7 +58,6 @@ router.post(
                 name: responseDetails.name,
                 mobileNo: responseDetails.mobileNo,
                 email: responseDetails.email,
-                token: token,
                 password: undefined,
             };
             return setApiResponse(200, true, false, response, res);
@@ -112,8 +85,6 @@ router.post(
                 });
             }
 
-            console.log(isUserExits.password);
-
             const validatePassword = await bcrypt.compare(
                 password,
                 isUserExits.password
@@ -126,10 +97,6 @@ router.post(
             };
 
             if (!validatePassword) {
-                // return res.status(400).json({
-                //     success: false,
-                //     message: "please enter valid password",
-                // });
                 return setApiResponse(
                     400,
                     false,
@@ -155,6 +122,44 @@ router.post(
     }
 );
 
+// see profile details api
+
+router.get("/profile", userAuth, async (req, res, next) => {
+    let responseDetails;
+
+    try {
+        responseDetails = await userRespository.getProfile(req.userId);
+
+        if (!responseDetails) {
+            return setApiResponse(400, false, true, "Invalid user id", res);
+        }
+
+        return setApiResponse(200, true, false, responseDetails, res);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// update profile
+router.post("/profile_update", userAuth, async (req, res, next) => {
+    const { name, email } = req.body;
+    let responseDetails;
+    try {
+        responseDetails = await userRespository.updateUserProfile(req.userId, {
+            name,
+            email,
+        });
+
+        if (!responseDetails) {
+            return setApiResponse(400, false, true, {}, res);
+        }
+
+        return setApiResponse(200, true, false, responseDetails, res);
+    } catch (error) {
+        return next(error);
+    }
+});
+
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     let responseDetails: any;
 
@@ -164,35 +169,10 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
         return next(error);
     }
     if (!responseDetails) {
-        return setApiResponse(400, false, true, "user not found", res);
+        return setApiResponse(400, false, true, {}, res);
     }
 
     return setApiResponse(200, true, false, responseDetails, res);
 });
-
-router.post(
-    "/logout",
-    async (req: Request, res: Response, next: NextFunction) => {
-        let responseDetails: any;
-
-        try {
-            return setApiResponse(
-                200,
-                true,
-                false,
-                "user Logged out successfully",
-                res
-            );
-        } catch (error) {
-            return setApiResponse(
-                400,
-                true,
-                false,
-                "issue in logging out process",
-                res
-            );
-        }
-    }
-);
 
 export default router;
