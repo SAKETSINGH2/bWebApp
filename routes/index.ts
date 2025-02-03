@@ -7,5 +7,5 @@ const router = express.Router();
 
 router.use("/user", userRouter);
 router.use("/admin", adminRouter);
-router.use("/admin", blogRouter);
+router.use("/blog", blogRouter);
 export default router;
