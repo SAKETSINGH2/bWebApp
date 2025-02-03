@@ -10,6 +10,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import setApiResponse from "../../utils/setApiresponseType";
 import { userAuth } from "../../middlewares/userAuth";
+import adminAuth from "../../middlewares/adminAuth";
 dotenv.config();
 
 const userRespository = new UserRepository();
@@ -160,19 +161,25 @@ router.post("/profile_update", userAuth, async (req, res, next) => {
     }
 });
 
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-    let responseDetails: any;
+router.get(
+    "/",
+    adminAuth,
+    async (req: Request, res: Response, next: NextFunction) => {
+        let responseDetails: any;
 
-    try {
-        responseDetails = await userRespository.getAllUser();
-    } catch (error) {
-        return next(error);
-    }
-    if (!responseDetails) {
-        return setApiResponse(400, false, true, {}, res);
-    }
+        console.log(req.userId);
 
-    return setApiResponse(200, true, false, responseDetails, res);
-});
+        try {
+            responseDetails = await userRespository.getAllUser();
+        } catch (error) {
+            return next(error);
+        }
+        if (!responseDetails) {
+            return setApiResponse(400, false, true, {}, res);
+        }
+
+        return setApiResponse(200, true, false, responseDetails, res);
+    }
+);
 
 export default router;
