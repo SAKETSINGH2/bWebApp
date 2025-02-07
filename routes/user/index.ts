@@ -163,7 +163,7 @@ router.post("/profile_update", userAuth, async (req, res, next) => {
 
 router.get(
     "/",
-    adminAuth,
+    // adminAuth,
     async (req: Request, res: Response, next: NextFunction) => {
         let responseDetails: any;
 
