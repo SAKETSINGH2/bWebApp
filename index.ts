@@ -3,9 +3,45 @@ import cors from "cors";
 import apiRouter from "./routes";
 import connect from "./config/dataBaseConnection";
 import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
 dotenv.config();
 
 const app = express();
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
+
+let users: Record<string, string> = {};
+
+io.on("connection", (socket) => {
+    socket.on("user", (userId) => {
+        users[userId] = socket.id;
+        // console.log("connected users", users);
+    });
+    // console.log("socketId", socket.id);
+    socket.on("message", ({ senderId, receiverId, message }) => {
+        const receiverSocketId = users[receiverId];
+        // console.log("message", message);
+        // console.log("userId", senderId);
+        // console.log("receiverId", receiverId);
+        // console.log("receiverSocketId", receiverSocketId);
+
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("msg", {
+                senderId,
+                receiverId,
+                message,
+            });
+        }
+    });
+});
 
 app.use(cors());
 
@@ -22,7 +58,7 @@ app.get("/test", (req: Request, res: Response) => {
 });
 
 const port = 4000;
-app.listen(port, (err?: Error) => {
+server.listen(port, (err?: Error) => {
     if (err) {
         console.error(`Error occurred: ${err.message}`);
         return;

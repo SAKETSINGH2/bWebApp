@@ -7,7 +7,7 @@ export const requestParamsValidator = (
     next: NextFunction
 ) => {
     let reqValidationResult = validationResultConstructor(req);
-    console.log(reqValidationResult);
+    // console.log(reqValidationResult);
     if (reqValidationResult) {
         return res
             .status(400)
