@@ -110,6 +110,7 @@ router.post(
             let token = jwt.sign(payload, process.env.JWT_SECRET || "");
 
             let response = {
+                id: isUserExits._id,
                 name: isUserExits.name,
                 mobileNo: isUserExits.mobileNo,
                 email: isUserExits.email,
@@ -167,7 +168,7 @@ router.get(
     async (req: Request, res: Response, next: NextFunction) => {
         let responseDetails: any;
 
-        console.log(req.userId);
+        // console.log(req.userId);
 
         try {
             responseDetails = await userRespository.getAllUser();
