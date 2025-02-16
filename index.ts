@@ -23,15 +23,17 @@ let users: Record<string, string> = {};
 io.on("connection", (socket) => {
     socket.on("user", (userId) => {
         users[userId] = socket.id;
-        // console.log("connected users", users);
+        console.log("connected users", users);
     });
-    // console.log("socketId", socket.id);
+
+    io.emit("updateUserStatus", users);
+    console.log("socketId", socket.id);
     socket.on("message", ({ senderId, receiverId, message }) => {
         const receiverSocketId = users[receiverId];
-        // console.log("message", message);
-        // console.log("userId", senderId);
-        // console.log("receiverId", receiverId);
-        // console.log("receiverSocketId", receiverSocketId);
+        console.log("message", message);
+        console.log("userId", senderId);
+        console.log("receiverId", receiverId);
+        console.log("receiverSocketId", receiverSocketId);
 
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("msg", {
@@ -40,6 +42,17 @@ io.on("connection", (socket) => {
                 message,
             });
         }
+        socket.on("disconnect", () => {
+            const userId = Object.keys(users).find(
+                (key) => users[key] === socket.id
+            );
+            console.log("userId", userId);
+            if (userId) {
+                delete users[userId]; // Remove user from list
+                console.log(`User ${userId} disconnected`);
+                io.emit("updateUserStatus", users); // Notify all clients
+            }
+        });
     });
 });
 
