@@ -16,8 +16,9 @@ class BlogRepository {
             {
                 id: 1,
                 title: 1,
-                description: 1,
-                author: 1,
+                content: 1,
+                authorName: 1,
+                image: 1,
                 createdAt: 1,
                 updatedAt: 1,
             }

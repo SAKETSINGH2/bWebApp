@@ -6,13 +6,16 @@ const blogModelSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        description: {
+        content: {
             type: String,
             required: true,
         },
-        author: {
+        authorName: {
             type: String,
             required: true,
+        },
+        image: {
+            type: String,
         },
     },
     {
